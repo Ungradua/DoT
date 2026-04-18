@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 import itertools
 
-from utils import database
+from utils import database, roles
 
 STATUS_MESSAGES = itertools.cycle([
     "🚦 Monitoring San Aurie Traffic | DoT",
@@ -31,10 +31,8 @@ class Events(commands.Cog):
         if not user_data:
             return
 
-        # Determine highest role
-        roles = [r for r in after.roles if r.name != "@everyone"]
-        roles.sort(key=lambda r: r.position, reverse=True)
-        new_role = roles[0].name if roles else "Citizen"
+        # Determine highest role using shared logic
+        new_role = roles.get_highest_role(after)
 
         if new_role != user_data['discord_role']:
             database.update_user_role(discord_id, new_role)

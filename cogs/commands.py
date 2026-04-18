@@ -3,30 +3,21 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from utils import database, roblox, embeds
+from utils import database, roblox, embeds, roles
 
 class IDCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    def get_highest_role_name(self, member: discord.Member) -> str:
-        roles = [r for r in member.roles if r.name != "@everyone"]
-        if not roles:
-            return "Citizen"
-        roles.sort(key=lambda r: r.position, reverse=True)
-        return roles[0].name
 
     @app_commands.command(name="id-create", description="Register and generate your DoT Officer ID Card.")
     @app_commands.describe(roblox_username="Your exact Roblox Username")
     async def id_create(self, interaction: discord.Interaction, roblox_username: str):
         await interaction.response.defer(ephemeral=False) # Make public
         
-        required_role_id = os.getenv("REQUIRED_ROLE_ID")
-        if required_role_id:
-            has_role = any(str(role.id) == required_role_id for role in interaction.user.roles)
-            if not has_role:
-                await interaction.followup.send("❌ You do not have the required role to create an ID card.")
-                return
+        if not roles.has_required_role(interaction.user):
+            await interaction.followup.send("❌ You do not have the required role to create an ID card.")
+            return
 
         discord_id = str(interaction.user.id)
         existing_user = database.get_user(discord_id)
@@ -49,7 +40,7 @@ class IDCommands(commands.Cog):
             await interaction.followup.send("❌ Error: All 999 service numbers are currently assigned.")
             return
 
-        discord_role = self.get_highest_role_name(interaction.user)
+        discord_role = roles.get_highest_role(interaction.user)
 
         user_data = {
             "discord_id": discord_id,
@@ -89,7 +80,7 @@ class IDCommands(commands.Cog):
             return
 
         # Auto-update role on fetch
-        current_role = self.get_highest_role_name(target)
+        current_role = roles.get_highest_role(target)
         if current_role != user_data['discord_role']:
             database.update_user_role(discord_id, current_role)
             user_data = dict(user_data)
