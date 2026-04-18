@@ -54,7 +54,9 @@ def has_required_role(member: discord.Member | discord.User, log_func=None) -> b
         if log_func:
             debug_msg = f"Object for {member.name} has no 'roles' attribute. (Not a Member object? Type: {type(member)})"
             import asyncio
-            asyncio.create_task(log_func(f"❌ {debug_msg}"))
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(log_func(f"❌ {debug_msg}"))
         return False
 
     # Check if any of the member's roles match any of the required IDs
@@ -64,7 +66,12 @@ def has_required_role(member: discord.Member | discord.User, log_func=None) -> b
     if log_func:
         status = "✅ PASS" if success else "❌ FAIL"
         debug_info = f"User: {member.name} | Has Roles: {member_role_ids} | Required: {required_ids}"
+        # Use bot's loop or member's guild bot loop to schedule the log
+        # In discord.py commands, interaction.client is the bot
+        # But we'll try to use member.guild.me.guild.client if possible, or just assume log_func is a bound method
         import asyncio
-        asyncio.create_task(log_func(f"{status} Role Check | {debug_info}"))
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            loop.create_task(log_func(f"{status} Role Check | {debug_info}"))
     
     return success
