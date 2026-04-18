@@ -7,8 +7,6 @@
 ## Features
 - 🔄 **Activity Rotation** — Cycles through DoT-themed status messages.
 - 🪪 **Officer ID System** — `/id-create` and `/id-get` with photo integration.
-- 🚔 **Violation Filing** — Persistent panel for filing and reviewing fines.
-- 🔍 **Background Checks** — `/check-background` to view a citizen's violation history.
 - 🔃 **Auto Role Sync** — Keeps ranks updated with Discord roles automatically.
 - 💾 **SQLite Database** — Built-in native Python SQLite database storage.
 
@@ -53,8 +51,7 @@ DoT Assistant/
 ├── requirements.txt     # Python deps
 ├── cogs/                # Bot modules
 │   ├── commands.py      # ID commands
-│   ├── events.py        # Event handlers
-│   └── fines.py         # Violation system
+│   └── events.py        # Event handlers
 ├── utils/               # Helpers
 │   ├── database.py      # SQLite manager
 │   ├── roblox.py        # Roblox API
