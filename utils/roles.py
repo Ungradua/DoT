@@ -42,12 +42,8 @@ def has_required_role(member: discord.Member | discord.User, log_func=None) -> b
     Checks if the member has the required role(s) to create an ID.
     Handles multiple comma-separated IDs and trims whitespace.
     """
-    # SYSTEM DEBUG: Forcing log flush to ensure visibility on Render
-    print(f"[DEBUG] has_required_role called for {member.name} (Type: {type(member)})", flush=True)
-
     required_ids_str = os.getenv("REQUIRED_ROLE_ID", "").strip()
     if not required_ids_str:
-        print("[DEBUG] No REQUIRED_ROLE_ID found, allowing.", flush=True)
         return True 
         
     # Split by comma and clean up whitespace
@@ -55,23 +51,19 @@ def has_required_role(member: discord.Member | discord.User, log_func=None) -> b
     
     # Defensive check: if it's not a Member object, it doesn't have roles
     if not hasattr(member, "roles"):
-        debug_msg = f"Object for {member.name} has no 'roles' attribute. (Not a Member object? Type: {type(member)})"
-        print(f"[DEBUG] {debug_msg}", flush=True)
         if log_func:
+            debug_msg = f"Object for {member.name} has no 'roles' attribute. (Not a Member object? Type: {type(member)})"
             import asyncio
             asyncio.create_task(log_func(f"❌ {debug_msg}"))
         return False
 
     # Check if any of the member's roles match any of the required IDs
     member_role_ids = [str(r.id) for r in member.roles]
-    
-    debug_info = f"User: {member.name} | Has Roles: {member_role_ids} | Required: {required_ids}"
-    print(f"        {debug_info}", flush=True)
-    
     success = any(rid in member_role_ids for rid in required_ids)
     
     if log_func:
         status = "✅ PASS" if success else "❌ FAIL"
+        debug_info = f"User: {member.name} | Has Roles: {member_role_ids} | Required: {required_ids}"
         import asyncio
         asyncio.create_task(log_func(f"{status} Role Check | {debug_info}"))
     
