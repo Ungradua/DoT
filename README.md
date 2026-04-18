@@ -64,5 +64,16 @@ DoT Assistant/
 ```
 
 ---
-© 2026 San Aurie Department of Transportation
+
+---
+
+## 24/7 Hosting (Render)
+This bot includes a `keep_alive.py` script to stay online 24/7 on free services like **Render**.
+
+1.  **Deploy to Render**: Create a new **Web Service** on Render and link this GitHub repo.
+2.  **Command**: Set the start command to `python bot.py`.
+3.  **Keep Alive**: Once deployed, copy your Render URL (e.g., `https://dot-bot.onrender.com`).
+4.  **UptimeRobot**: Create a free account on [UptimeRobot](https://uptimerobot.com/), add a "HTTP Monitor," and paste your Render URL. 
+    *   Set it to ping every **5 minutes**.
+    *   This will prevent the bot from going to sleep!
 
