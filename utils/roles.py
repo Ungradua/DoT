@@ -42,26 +42,29 @@ def has_required_role(member: discord.Member | discord.User) -> bool:
     Checks if the member has the required role(s) to create an ID.
     Handles multiple comma-separated IDs and trims whitespace.
     """
+    # SYSTEM DEBUG: Forcing log flush to ensure visibility on Render
+    print(f"[DEBUG] has_required_role called for {member.name} (Type: {type(member)})", flush=True)
+
     required_ids_str = os.getenv("REQUIRED_ROLE_ID", "").strip()
     if not required_ids_str:
-        return True # If no requirement set, allow all
+        print("[DEBUG] No REQUIRED_ROLE_ID found, allowing.", flush=True)
+        return True 
         
     # Split by comma and clean up whitespace
     required_ids = [rid.strip() for rid in required_ids_str.split(",") if rid.strip()]
     
     # Defensive check: if it's not a Member object, it doesn't have roles
     if not hasattr(member, "roles"):
+        print("[DEBUG] Object has no 'roles' attribute. (Not a Member object?)", flush=True)
         return False
 
     # Check if any of the member's roles match any of the required IDs
     member_role_ids = [str(r.id) for r in member.roles]
     
-    # SYSTEM DEBUG: Printing to console to help resolve the 'error still exist' issue
-    print(f"[DEBUG] Checking roles for {member.name} ({member.id})")
-    print(f"        Member Roles: {member_role_ids}")
-    print(f"        Required IDs: {required_ids}")
+    print(f"        Member Roles: {member_role_ids}", flush=True)
+    print(f"        Required IDs: {required_ids}", flush=True)
     
     success = any(rid in member_role_ids for rid in required_ids)
-    print(f"        Check Result: {success}")
+    print(f"        Check Result: {success}", flush=True)
     
     return success
