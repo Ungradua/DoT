@@ -40,6 +40,28 @@ class DoTAssistant(commands.Bot):
         except Exception as e:
             print(f"[Commands] Error syncing: {e}")
 
+    async def log_to_discord(self, message: str):
+        """Sends a simple text log to the designated logging channel."""
+        log_channel_id = os.getenv("LOG_CHANNEL_ID")
+        if not log_channel_id:
+            # Fallback to console if no channel is set
+            print(f"[Log Search] {message}")
+            return
+
+        try:
+            channel = self.get_channel(int(log_channel_id))
+            if not channel:
+                # If not in cache, try to fetch it
+                channel = await self.fetch_channel(int(log_channel_id))
+            
+            if channel:
+                await channel.send(f"📋 **System Log**: {message}")
+            else:
+                print(f"[Log Error] Could not find channel {log_channel_id}")
+        except Exception as e:
+            print(f"[Log Error] Failed to send log to Discord: {e}")
+            print(f"Original Log: {message}")
+
 async def main():
     token = os.getenv("DISCORD_TOKEN")
     if not token or "your_discord_bot_token" in token:

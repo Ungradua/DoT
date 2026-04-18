@@ -15,7 +15,7 @@ class IDCommands(commands.Cog):
     async def id_create(self, interaction: discord.Interaction, roblox_username: str):
         await interaction.response.defer(ephemeral=False) # Make public
         
-        if not roles.has_required_role(interaction.user):
+        if not roles.has_required_role(interaction.user, log_func=self.bot.log_to_discord):
             await interaction.followup.send("❌ You do not have the required role to create an ID card.")
             return
 
@@ -52,6 +52,7 @@ class IDCommands(commands.Cog):
         }
 
         database.create_user(user_data)
+        await self.bot.log_to_discord(f"✅ Created ID for **{roblox_username_proper}** (Discord: {interaction.user.name})")
         
         # Fetch the dict back just so we have the timestamps
         saved_user = database.get_user(discord_id)
@@ -87,6 +88,7 @@ class IDCommands(commands.Cog):
             user_data['discord_role'] = current_role
 
         embed = embeds.create_id_embed(dict(user_data))
+        await self.bot.log_to_discord(f"🔍 {interaction.user.name} viewed ID for {target.display_name}")
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):

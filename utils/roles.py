@@ -37,7 +37,7 @@ def get_highest_role(member: discord.Member) -> str:
     
     return allowed_roles[0].name
 
-def has_required_role(member: discord.Member | discord.User) -> bool:
+def has_required_role(member: discord.Member | discord.User, log_func=None) -> bool:
     """
     Checks if the member has the required role(s) to create an ID.
     Handles multiple comma-separated IDs and trims whitespace.
@@ -55,16 +55,24 @@ def has_required_role(member: discord.Member | discord.User) -> bool:
     
     # Defensive check: if it's not a Member object, it doesn't have roles
     if not hasattr(member, "roles"):
-        print("[DEBUG] Object has no 'roles' attribute. (Not a Member object?)", flush=True)
+        debug_msg = f"Object for {member.name} has no 'roles' attribute. (Not a Member object? Type: {type(member)})"
+        print(f"[DEBUG] {debug_msg}", flush=True)
+        if log_func:
+            import asyncio
+            asyncio.create_task(log_func(f"❌ {debug_msg}"))
         return False
 
     # Check if any of the member's roles match any of the required IDs
     member_role_ids = [str(r.id) for r in member.roles]
     
-    print(f"        Member Roles: {member_role_ids}", flush=True)
-    print(f"        Required IDs: {required_ids}", flush=True)
+    debug_info = f"User: {member.name} | Has Roles: {member_role_ids} | Required: {required_ids}"
+    print(f"        {debug_info}", flush=True)
     
     success = any(rid in member_role_ids for rid in required_ids)
-    print(f"        Check Result: {success}", flush=True)
+    
+    if log_func:
+        status = "✅ PASS" if success else "❌ FAIL"
+        import asyncio
+        asyncio.create_task(log_func(f"{status} Role Check | {debug_info}"))
     
     return success

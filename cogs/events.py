@@ -36,7 +36,9 @@ class Events(commands.Cog):
 
         if new_role != user_data['discord_role']:
             database.update_user_role(discord_id, new_role)
-            print(f"[Role Sync] Updated {after.display_name} locally to {new_role}")
+            log_msg = f"🔄 Role Sync for **{after.display_name}**: Updated to {new_role}"
+            print(f"[Role Sync] {log_msg}")
+            await self.bot.log_to_discord(log_msg)
 
     @tasks.loop(seconds=60)
     async def status_rotation(self):
